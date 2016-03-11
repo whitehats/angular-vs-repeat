@@ -208,8 +208,10 @@
                             originalCollection = [],
                             originalLength,
                             $$horizontal = typeof $attrs.vsHorizontal !== 'undefined',
-                            $beforeContent = angular.element('<' + childTagName + ' class="vs-repeat-before-content"></' + childTagName + '>'),
-                            $afterContent = angular.element('<' + childTagName + ' class="vs-repeat-after-content"></' + childTagName + '>'),
+                            beforeClass = $attrs.vsBeforeClass ? ' ' + $attrs.vsBeforeClass : '',
+                            afterClass = $attrs.vsAfterClass ? ' ' + $attrs.vsAfterClass : '',
+                            $beforeContent = angular.element('<' + childTagName + ' class="vs-repeat-before-content' + beforeClass + '"></' + childTagName + '>'),
+                            $afterContent = angular.element('<' + childTagName + ' class="vs-repeat-after-content' + afterClass + '"></' + childTagName + '>'),
                             autoSize = !$attrs.vsRepeat,
                             sizesPropertyExists = !!$attrs.vsSize || !!$attrs.vsSizeProperty,
                             $scrollParent = $attrs.vsScrollParent ?
@@ -260,12 +262,15 @@
                         });
 
 
-                        $scope.$watchCollection(rhs, function(coll) {
-                            originalCollection = coll || [];
-                            refresh();
-                        });
+                        // $scope.$watchCollection(rhs, function(coll) {
+                        //     originalCollection = coll || [];
+                        //     refresh();
+                        // });
 
-                        function refresh() {
+                        function refresh(e, data) {
+                            originalCollection = data.items || [];
+
+
                             if (!originalCollection || originalCollection.length < 1) {
                                 $scope[collectionName] = [];
                                 originalLength = 0;
@@ -273,6 +278,13 @@
                             }
                             else {
                                 originalLength = originalCollection.length;
+
+                                if (data.changedSize) {
+                                    $scope.elementSize = (+$attrs.vsRepeat) || getClientSize($scrollParent[0], clientSize) || 50;
+                                    autoSize = true;
+                                    setAutoSize();
+                                }
+
                                 if (sizesPropertyExists) {
                                     $scope.sizes = originalCollection.map(function(item) {
                                         var s = $scope.$new(false);
@@ -597,3 +609,4 @@
         module.exports = vsRepeatModule.name;
     }
 })(window, window.angular);
+
